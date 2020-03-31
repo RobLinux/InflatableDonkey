@@ -46,7 +46,7 @@ public final class AuthenticationRequestFactory implements BiFunction<String, St
     }
 
     private static final AuthenticationRequestFactory INSTANCE = new AuthenticationRequestFactory(
-            "https://setup.icloud.com/setup/authenticate/$APPLE_ID$", CoreHeaders.headers());
+            "https://setup.icloud.com/setup/authenticate/$APPLE_ID$", CoreHeaders2.headers());
 
     private final String url;
     private final Map<Headers, Header> headers;

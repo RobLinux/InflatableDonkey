@@ -46,7 +46,7 @@ public final class AccountSettingsRequestFactory implements BiFunction<String, S
     }
 
     private static final AccountSettingsRequestFactory INSTANCE = new AccountSettingsRequestFactory(
-            "https://setup.icloud.com/setup/get_account_settings", CoreHeaders.headers());
+            "https://setup.icloud.com/setup/get_account_settings", CoreHeaders2.headers());
 
     private final String url;
     private final Map<Headers, Header> headers;

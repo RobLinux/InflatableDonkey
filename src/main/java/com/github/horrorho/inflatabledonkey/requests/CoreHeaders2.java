@@ -36,13 +36,13 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.http.Header;
 
 @Immutable
-public final class CoreHeaders {
+public final class CoreHeaders2 {
 
     private static final Map<Headers, Header> HEADERS = Headers.headers(
             USERAGENT.mapEntry(
-                    "CloudKit/736.235 (16G77)"),
+                    "Mozilla/IE"),
             XMMECLIENTINFO.mapEntry(
-            		"<iPhone8,4> <iPhone OS;12.4;16G77> <com.apple.cloudkit.CloudKitDaemon/736.235 (com.apple.cloudd/736.235)>"),
+            		"<iPhone5,2> <iPhone OS;8.1.1;9B206> <com.apple.AppleAccount/1.0 ((null)/(null))>"),
             XCLOUDKITPROTOCOLVERSION.mapEntry(
                     "client=1;comments=1;device=1;presence=1;records=1;sharing=1;subscriptions=1;users=1;mescal=1;"),
             XAPPLEMMCSPROTOVERSION.mapEntry(

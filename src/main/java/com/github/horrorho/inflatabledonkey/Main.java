@@ -53,6 +53,8 @@ import com.github.horrorho.inflatabledonkey.pcs.service.ServiceKeySet;
 import com.github.horrorho.inflatabledonkey.pcs.service.ServiceKeySetBuilder;
 import com.github.horrorho.inflatabledonkey.util.BatchSetIterator;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -76,6 +78,13 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+import java.security.SecureRandom;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * InflatableDonkey.
@@ -85,12 +94,33 @@ import org.slf4j.LoggerFactory;
 public class Main {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    
+    static byte[] lfsr(int blockOffset) {
+        ByteBuffer buffer = ByteBuffer.allocate(16)
+                .order(ByteOrder.LITTLE_ENDIAN);
 
+        int r = blockOffset << 12;
+        while (buffer.hasRemaining()) {
+            r = r >>> 1;
+            if ((r & 1) == 1) {
+                r = r ^ 0x80000061;
+            }
+            buffer.putInt(r);
+        }
+        
+        // 08 00 00 00 04 00 00 00 02 00 00 00 01 00 00 00
+        // 00 08 00 00 00 04 00 00 00 02 00 00 00 01 00 00
+
+        return buffer.array();
+    }
     /**
      * @param args the command line arguments
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
+    	
+    	lfsr(1);
+    	
         // MUST initialize Property with args before we use it, otherwise it will throw an IllegalStateException.
         try {
             if (!PropertyLoader.instance().test(args)) {
@@ -108,6 +138,24 @@ public class Main {
 
         Arrays.asList(Property.values())
                 .forEach(u -> logger.info("-- main() - {} = {}", u.name(), u.value()));
+
+        try
+        {
+/*
+            SSLContext context = SSLContext.getInstance("TLSv1.2");
+            TrustManager[] trustManager = new TrustManager[] {
+                new X509TrustManager() {
+                   public X509Certificate[] getAcceptedIssuers() {
+                       return new X509Certificate[0];
+                   }
+                   public void checkClientTrusted(X509Certificate[] certificate, String str) {}
+                   public void checkServerTrusted(X509Certificate[] certificate, String str) {}
+                }
+            };
+            context.init(null, trustManager, new SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+*/
 
         // INFO
         System.out.println("NOTE! Experimental Data Protection class mode detection.");
@@ -349,6 +397,9 @@ public class Main {
         Predicate<Snapshot> snapshotFilter = new SnapshotFilter(snapshotDateMin);
 
         backup.download(httpClient, filtered, snapshotFilter, assetsFilter, assetFilter);
+           }
+        catch(Exception e)
+        {}
     }
 
     static void print(Map<Device, List<Snapshot>> deviceSnapshot) {
@@ -360,7 +411,9 @@ public class Main {
                 })
                 .flatMap(Collection::stream)
                 .forEach(u -> System.out.println("  SNAPSHOT: " + u.info()));
+
     }
+
 }
 
 // TODO filter AssetID size rather than wait to download Asset and then filter.
